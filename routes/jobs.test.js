@@ -2,10 +2,10 @@
 
 const request = require("supertest");
 
-const db = require("../db");
 const app = require("../app");
 
 const {
+  db,
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
@@ -13,7 +13,7 @@ const {
   u1Token,
   u2Token,
   adminToken,
-  testJobIds,
+  getTestJobIds,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -156,10 +156,11 @@ describe("GET /jobs", function () {
 
 describe("GET /jobs/:id", function () {
   test("Get a job", async function () {
-    const resp = await request(app).get(`/jobs/${testJobIds[0]}`);
+    const id = getTestJobIds()[0];
+    const resp = await request(app).get(`/jobs/${id}`);
     expect(resp.body).toEqual({
       job: {
-        id: testJobIds[0],
+        id: id,
         title: "J1",
         salary: 100,
         equity: "0.1",
@@ -178,18 +179,21 @@ describe("GET /jobs/:id", function () {
 
 describe("PATCH /jobs/:id", function () {
   test("works for admin", async function () {
+    const id = getTestJobIds()[0];
     const resp = await request(app)
-      .patch(`/jobs/${testJobIds[0]}`)
+      .patch(`/jobs/${id}`)
       .send({
         salary: 150,
       })
       .set("authorization", `Bearer ${adminToken}`);
+    console.log(resp.body);
     expect(resp.body).toEqual({
       job: {
         title: "J1",
         salary: 150,
         equity: "0.1",
-        company_handle: "c1",
+        companyHandle: "c1",
+        id: expect.any(Number),
       },
     });
   });
@@ -229,10 +233,11 @@ describe("PATCH /jobs/:id", function () {
 
 describe("DELETE /jobs/:id", function () {
   test("works for admin", async function () {
+    const id = getTestJobIds()[0];
     const resp = await request(app)
-      .delete(`/jobs/${testJobIds[0]}`)
+      .delete(`/jobs/${id}`)
       .set("authorization", `Bearer ${adminToken}`);
-    expect(resp.body).toEqual({ deleted: testJobIds[0] });
+    expect(resp.body).toEqual({ deleted: id });
   });
 
   test("unauth for non-admin", async function () {

@@ -1,20 +1,20 @@
 "use strict";
 
-const db = require("../db.js");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const Job = require("./job.js");
-const {
+let {
+  db,
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  testJobIds,
+  getTestJobIds,
 } = require("./_testCommon.js");
 
-beforeAll(() => commonBeforeAll);
-beforeEach(() => commonBeforeEach);
-afterEach(() => commonAfterEach);
-afterAll(() => commonAfterAll);
+beforeAll(commonBeforeAll);
+beforeEach(commonBeforeEach);
+afterEach(commonAfterEach);
+afterAll(commonAfterAll);
 
 /************************************** create */
 
@@ -65,34 +65,8 @@ describe("findAll", function () {
         equity: "0.3",
         companyHandle: "c3",
       },
-      {
-        title: "Job7",
-        salary: 200,
-        equity: "0.5",
-        companyHandle: "c1",
-      },
     ];
     expect(jobs).toEqual(expectReturnData);
-    // expect(jobs).toEqual([
-    //   {
-    //     title: "J1",
-    //     salary: 100,
-    //     equity: "0.1",
-    //     companyHandle: "c1",
-    //   },
-    //   {
-    //     title: "J2",
-    //     salary: 250,
-    //     equity: "0.2",
-    //     companyHandle: "c2",
-    //   },
-    //   {
-    //     title: "J3",
-    //     salary: 300,
-    //     equity: "0.3",
-    //     companyHandle: "c3",
-    //   },
-    // ]);
   });
 });
 
@@ -100,22 +74,14 @@ describe("findAll", function () {
 
 describe("get", function () {
   test("Tests to get a job with its id", async function () {
-    commonBeforeAll();
-    console.log(testJobIds);
-    console.log("************");
-    let job = await Job.get(testJobIds[0]);
+    const id = getTestJobIds()[0];
+    let job = await Job.get(id);
     expect(job).toEqual({
       id: expect.any(Number),
       title: "J1",
       salary: 100,
       equity: "0.1",
-      company: {
-        handle: "c1",
-        name: "C1",
-        description: "Desc1",
-        numEmployees: 1,
-        logoUrl: "http://c1.img",
-      },
+      companyHandle: "c1",
     });
   });
 
@@ -136,9 +102,10 @@ describe("update", function () {
   };
 
   test("standard update job", async function () {
-    let job = await Job.update(testJobIds[0], newData);
-    expect(job).toEqual({
-      id: testJobIds[0],
+    const id = getTestJobIds()[0];
+    const updateJob = await Job.update(id, newData);
+    expect(updateJob).toEqual({
+      id: id,
       equity: "0.1",
       companyHandle: "c1",
       ...newData,

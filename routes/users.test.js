@@ -11,7 +11,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
-  testJobIds,
+  getTestJobIds,
   u1Token,
   u2Token,
   adminToken,
@@ -120,10 +120,11 @@ describe("POST /users", function () {
 
 describe("POST /users/:username/jobs/:id", function () {
   test("works for admin", async function () {
+    const id = getTestJobIds()[1];
     const resp = await request(app)
-      .post(`/users/u1/jobs/${testJobIds[1]}`)
+      .post(`/users/u1/jobs/${id}`)
       .set("authorization", `Bearer ${adminToken}`);
-    expect(resp.body).toEqual({ applied: testJobIds[1] });
+    expect(resp.body).toEqual({ applied: id });
   });
 
   test("unauth for others", async function () {
